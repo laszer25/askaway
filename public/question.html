@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <style>
+        html, body {
+    width: 100%;
+    height: 100%;
+}
+
+.map-frame {
+    width: 100%;
+    height: 70%;
+    position: relative;
+}
+
+.question-box{
+    position:relative;
+    width:100%;
+    height:10%;
+    font-size:42px;
+}
+
+.submit-box{
+    position:relative;
+    width:100%;
+    height:10%;
+    background-color:rgba(0,150,225,90);
+    color:rgba(225,225,225,100);
+    font-weight:bold;
+    font-size:42px;
+}
+
+    </style>
+<script src="https://maps.googleapis.com/maps/api/js"></script>
+<script>
+	var _lat = 0,_lng = 0;
+    var marker = null;
+    var circle = null;
+    var maxd = 1080;
+    var lat_lng = null;
+    var resizer = false;
+    var zoom = 16;
+function locationSet() {
+     if (navigator.geolocation) {
+         navigator.geolocation.getCurrentPosition(function(position){
+         console.log(position);
+            
+         var mapProp = {
+      
+            center:new google.maps.LatLng(Number(position.coords.latitude),Number(position.coords.longitude)),
+            zoom:16,
+            mapTypeId:google.maps.MapTypeId.ROADMAP
+         };
+         var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+         google.maps.event.addListener(map,'zoom_changed',function() {
+             if(!resizer){
+                zoom = Number(map.getZoom());
+                console.log(zoom);
+                maxd = (22 - zoom) * (22 - zoom) * (22 - zoom) * 5;
+                if(marker!= null && circle != null){
+                    marker.setMap(null);
+                    circle.setMap(null);
+                    marker = new google.maps.Marker({
+                    position: lat_lng,
+                    map: map,
+                    title: 'Write A Question'
+                    });
+             
+                    var circleOptions = {
+                    strokeColor: '#FF0000',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: '#FF0000',
+                    fillOpacity: 0.35,
+                    map: map,
+                    center: lat_lng,
+                    radius: maxd,
+                    editable : true
+                    };
+                    // Add the circle for this city to the map.
+                    circle = new google.maps.Circle(circleOptions);
+                    google.maps.event.addListener(circle, 'radius_changed', function() {
+                    console.log(circle.getRadius());
+                    maxd = Number(circle.getRadius());
+                    resizer = true;
+                    });
+             
+                }
+               }
+             });
+
+        google.maps.event.addListener(map,'click',function(event){
+        	_lat = event.latLng.lat();
+    	    _lng = event.latLng.lng();
+    	    resizer = false;
+    	    maxd = (22 - zoom) * (22 - zoom) * (22 - zoom) * 5;
+        	console.log(_lat + '   ' + _lng );
+        	if(marker != undefined){
+        	    marker.setMap(null);
+        	    circle.setMap(null);
+        	}
+	         lat_lng = event.latLng;
+        	 marker = new google.maps.Marker({
+             position: event.latLng,
+             map: map,
+             animation: 'DROP',
+             title: 'Write A Question'
+             });
+             
+             var circleOptions = {
+             strokeColor: '#FF0000',
+             strokeOpacity: 0.8,
+             strokeWeight: 2,
+             fillColor: '#FF0000',
+             fillOpacity: 0.35,
+             map: map,
+             center: event.latLng,
+             radius: maxd,
+             editable : true
+             };
+            // Add the circle for this city to the map.
+             circle = new google.maps.Circle(circleOptions);
+             
+             google.maps.event.addListener(marker,'click',function(event) {
+                 marker.setMap(null);
+                 circle.setMap(null);
+                 circle = null;
+                 marker = null;
+                 
+                 //document.getElementById("message").value ="";
+                 
+             });
+             
+             google.maps.event.addListener(circle, 'radius_changed', function() {
+                 console.log(circle.getRadius());
+                 maxd = Number(circle.getRadius());
+                 resizer = true;
+             });
+             
+             
+            //document.getElementById("message").focus();
+
+        });
+     });
+    } 
+else
+    {
+        
+         var mapProp = {
+      
+             center:new google.maps.LatLng(51.508742,-0.120850),
+             zoom:18,
+              mapTypeId:google.maps.MapTypeId.ROADMAP
+            };
+        var map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+
+        google.maps.event.addListener(map,'click',function(event){
+        	_lat = event.latLng.lat();
+        	_lng = event.latLng.lng();
+        	console.log(_lat + '   ' + _lng );
+        });
+
+    }
+}
+
+
+function submitQuestion(){
+    
+    if(marker != null && document.getElementById("message").value != ""){
+    var message = document.getElementById("message").value;
+    
+    
+    post('/locs/q', {x:_lat,y:_lng,d:maxd,token_id:"asdffsdf",usr:'tony',m:message},"get");
+    }
+}
+google.maps.event.addDomListener(window, 'load', locationSet);
+
+
+function post(path, params, method) {
+    method = method || "post"; // Set method to post by default if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function checkTyping(){
+    
+    if(document.getElementById("message").value != "" && marker != null){
+        
+         document.getElementById("submit").value = "Drop The Question";
+    }
+    else if(marker != null)
+    {
+        document.getElementById("submit").value = "Write A Question";
+    }
+    else
+    {
+        document.getElementById("submit").value = "Pick A Point";
+    }
+}
+
+function startCheck() {
+    setInterval(function () {checkTyping()}, 3000);
+}
+
+</script>
+</head>
+
+<body>
+<div id="googleMap" class="map-frame" ></div>
+<input type="text" name="message" class="question-box" id="message" onchange="checkTyping()" onfocus="startCheck()"/>
+<input type="button" name="submit" id="submit" value="Pick A Point" onclick="submitQuestion()" class="submit-box"/>
+</body>
+
+</html>
