@@ -10,6 +10,7 @@ var gcm = require('node-gcm');
 var cors = require('cors');
 // initiate express
 var app  = express();
+var secrets = require('private/secrets.js');
 //configure application
 
 
@@ -255,7 +256,7 @@ function getQLocs(req,res){
        msg.addData('mesg', mesg);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
+       var sender = new gcm.Sender(secrets.apiKey);
        console.log(msg);
        sender.send(msg,keys,function(err,res){
         if(err)
@@ -509,6 +510,7 @@ function containsInTree(value,root){
 }
 
 // remove node from tree
+
 
 
 var room_def = {
