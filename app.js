@@ -255,7 +255,7 @@ function getQLocs(req,res){
        msg.addData('mesg', mesg);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
+       var sender = new gcm.Sender('API KEY');
        console.log(msg);
        sender.send(msg,keys,function(err,res){
         if(err)
@@ -463,8 +463,8 @@ String.prototype.hashCode = function() {
 
 var rooms = [];
 
-io.on('connection', function(socket){
- console.log(io.url);
+  io.on('connection', function(socket){
+  console.log(io.url);
   console.log('connection called from client' + socket);
   socket.on('chat message', function(msg){
     io.sockets.emit('update chat',msg);
@@ -534,8 +534,20 @@ io.on('connection', function(socket){
    // Figure out how to delete a room and it's messages from memory once all the clients are disconnected
    
    var d_id = socket.id;
+   var sr_id = socket.question;
    console.log(d_id+" disconnected " + socket.question);
-   
+   for(var idx = 0; idx < rooms.length; idx++){
+    if(rooms[idx].id == sr_id){
+     for(var iter = 0 ; iter < rooms[idx].sockets.length; iter++){
+      if(rooms[idx].sockets[iter] == d_id){
+       rooms[idx].sockets[iter].splice(iter,1);
+       if(rooms[idx].sockets.length == 0){
+        rooms.splice(idx,1);
+       }
+      }
+     }
+    }
+   }
    
   });
   
