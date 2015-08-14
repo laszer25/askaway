@@ -255,7 +255,7 @@ function getQLocs(req,res){
        msg.addData('mesg', mesg);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender('GCM sender key');
+       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
        console.log(msg);
        sender.send(msg,keys,function(err,res){
         if(err)
