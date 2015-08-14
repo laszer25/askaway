@@ -255,7 +255,7 @@ function getQLocs(req,res){
        msg.addData('mesg', mesg);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender('API KEY');
+       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
        console.log(msg);
        sender.send(msg,keys,function(err,res){
         if(err)
@@ -462,6 +462,69 @@ String.prototype.hashCode = function() {
 
 
 var rooms = [];
+
+// Binary search tree implementation
+
+// adding to tree
+function addToTree(node, root){
+ if(root!=null){
+  if(root.left == null && root.data.id > node.data.id){
+   root.left = node;
+  }
+  else if(root.right == null && root.data.id < node.data.id){
+   root.right = node;
+  }
+  else if(root.left != null && root.data.id > node.data.id){
+   addToTree(node, root.left);
+  }
+  else if(root.right != null && root.data.id < node.data.id)
+  {
+   addToTree(node, root.right);
+  }
+ }
+ else
+ {
+  root = node;
+ }
+}
+
+
+// value is contained in the tree
+function containsInTree(value,root){
+ if(root != null){
+  if(root.data.id > value){
+   containsInTree(value, root.left);
+  }
+  else if(root.data.id < value)
+  {
+   containsInTree(value,root.right);
+  }
+  else {
+   return root.data;
+  }
+ }
+ else{
+  return root;
+ }
+}
+
+// remove node from tree
+
+
+var room_def = {
+ id : Number,
+ sockets : [String],
+ messages : [String]
+} 
+
+var node = {
+ left : null,
+ right : null,
+ data : room_def
+}
+
+var root = null;
+
 
   io.on('connection', function(socket){
   console.log(io.url);
