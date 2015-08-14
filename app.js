@@ -10,7 +10,7 @@ var gcm = require('node-gcm');
 var cors = require('cors');
 // initiate express
 var app  = express();
-var secrets = require('private/secrets.js');
+var secrets = require(__dirname + '/private/secrets.js');
 //configure application
 
 
@@ -510,6 +510,24 @@ function containsInTree(value,root){
 }
 
 // remove node from tree
+
+function removeFromTree(value, root){
+ var parent = null;
+ 
+ removeTree(value,root,parent);
+}
+
+function removeTree(value,root,parent){
+ 
+}
+
+
+
+
+
+
+
+
 
 
 
