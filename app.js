@@ -257,7 +257,7 @@ function getQLocs(req,res){
        msg.addData('mesg', mesg);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
+       var sender = new gcm.Sender('API KEY');
        
        console.log(msg);
        sender.send(msg,keys,function(err,res){
@@ -463,20 +463,7 @@ var rooms = [];
 
 // Binary search tree implementation
 var BST = function () {
-        /*
-        * Private Class: Node
-        *
-        * A BST node constructor
-        *
-        * Parameters:
-        *        leftChild - a reference to the left child of the node.
-        *        key - The key of the node.
-        *        value - the value of the node.
-        *        rightChild - a reference to the right child of the node.
-        *        parent - a reference to the parent of the node.
-        *
-        * Note: All parameters default to null.
-        */
+
     var Node = function (leftChild, key, value, rightChild, parent) {
             return {
                 leftChild: (typeof leftChild === "undefined") ? null : 
