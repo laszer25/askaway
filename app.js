@@ -454,13 +454,8 @@ String.prototype.hashCode = function() {
 
 
 //==============================================================================
-//==============================================================================
 //===========================CHAT FUNCTIONALITY=================================
 //==============================================================================
-//==============================================================================
-//==============================================================================
-
-
 
 var rooms = [];
 
@@ -510,42 +505,87 @@ function containsInTree(value,root){
 }
 
 // remove node from tree
-
+var queue = [];
 function removeFromTree(value, root){
  var parent = null;
- 
+  queue= new Array();
+ queue.push(root);
  removeTree(value,root,parent);
 }
 
 function removeTree(value,root,parent){
- 
+ if(root != null){
+  var c_node = queue.shift();
+  if(value < c_node.data.id){
+   parent = c_node;
+   queue.push(c_node.left);
+   queue.push(c_node.right);
+   removeTree(value, c_node.left,parent);
+  }
+  else if( value > c_node.data.id){
+   parent = c_node;
+   queue.push(c_node.left);
+   queue.push(c_node.right);
+   removeTree(value,c_node.right,parent);
+  }
+  else if(c_node.data.id == value)
+  {
+   if(c_node.left == null && c_node.right == null){
+    c_node = null;
+   }
+   else if(c_node.left == null && c_node.right != null){
+    parent.right = c_node;
+    c_node = null;
+   }
+   else if(c_node.left != null && c_node.right == null){
+    parent.right = c_node;
+    c_node = null;
+   }
+   else if(c_node.left != null && c_node.right != null){
+    // finding minimum in right subtree
+    var current_node = c_node.right;
+    
+    var min_node = current_node;
+    while(current_node.left != null){
+     
+     min_node = current_node.left;
+    }
+   if(parent.left.data.id == c_node.data.id){
+    parent.left = min_node;
+   }
+   else if(parent.right.data.id == c_node.data.id){
+    parent.right = min_node;
+   }
+    if(min_node.right != null){
+     var temp_node = min_node.right;
+     min_node = temp_node;
+    }
+    else
+    {
+     min_node = null;
+    }
+   }
+  }
+ }
 }
-
-
-
-
-
-
-
-
-
 
 
 var room_def = {
  id : Number,
  sockets : [String],
  messages : [String]
-} 
+};
 
 var node = {
  left : null,
  right : null,
  data : room_def
-}
+};
+
+//-------------------------------------------------------------------
+
 
 var root = null;
-
-
   io.on('connection', function(socket){
   console.log(io.url);
   console.log('connection called from client' + socket);
@@ -563,7 +603,7 @@ var root = null;
      id:c_id,
      sockets: [],
      messages : []
-   }
+   };
    room.sockets.push(socket_id);
    rooms.push(room);
    console.log(rooms.length);
