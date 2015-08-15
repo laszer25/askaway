@@ -10,7 +10,8 @@ var gcm = require('node-gcm');
 var cors = require('cors');
 // initiate express
 var app  = express();
-var secrets = require(__dirname + '/private/secrets.js');
+var secrets = require(__dirname + '/private/secrets');
+console.log(secrets.apiKey);
 //configure application
 
 
@@ -256,7 +257,8 @@ function getQLocs(req,res){
        msg.addData('mesg', mesg);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender(secrets.apiKey);
+       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
+       
        console.log(msg);
        sender.send(msg,keys,function(err,res){
         if(err)
@@ -460,115 +462,245 @@ String.prototype.hashCode = function() {
 var rooms = [];
 
 // Binary search tree implementation
+var BST = function () {
+        /*
+        * Private Class: Node
+        *
+        * A BST node constructor
+        *
+        * Parameters:
+        *        leftChild - a reference to the left child of the node.
+        *        key - The key of the node.
+        *        value - the value of the node.
+        *        rightChild - a reference to the right child of the node.
+        *        parent - a reference to the parent of the node.
+        *
+        * Note: All parameters default to null.
+        */
+    var Node = function (leftChild, key, value, rightChild, parent) {
+            return {
+                leftChild: (typeof leftChild === "undefined") ? null : 
+                           leftChild,
+                key: (typeof key === "undefined") ? null : key,
+                value: (typeof value === "undefined") ? null : value,
+                rightChild: (typeof rightChild === "undefined") ? null : 
+                            rightChild,
+                parent: (typeof parent === "undefined") ? null : parent
+            };
+        },
 
-// adding to tree
-function addToTree(node, root){
- if(root!=null){
-  if(root.left == null && root.data.id > node.data.id){
-   root.left = node;
-  }
-  else if(root.right == null && root.data.id < node.data.id){
-   root.right = node;
-  }
-  else if(root.left != null && root.data.id > node.data.id){
-   addToTree(node, root.left);
-  }
-  else if(root.right != null && root.data.id < node.data.id)
-  {
-   addToTree(node, root.right);
-  }
- }
- else
- {
-  root = node;
- }
-}
+        root = new Node(),
 
+        searchNode = function (node, key, flag) {
+            if (node.key === null) {
+                return null; // key not found
+            }
+            
+            var nodeKey = parseInt(node.key, 10);
 
-// value is contained in the tree
-function containsInTree(value,root){
- if(root != null){
-  if(root.data.id > value){
-   containsInTree(value, root.left);
-  }
-  else if(root.data.id < value)
-  {
-   containsInTree(value,root.right);
-  }
-  else {
-   return root.data;
-  }
- }
- else{
-  return root;
- }
-}
+            if (key < nodeKey) {
+                return searchNode(node.leftChild, key);
+            } else if (key > nodeKey) {
+                return searchNode(node.rightChild, key);
+            } else { // key is equal to node key
+                if(flag)
+                return node.value;
+                else
+                return node;
+            }
+        },
+        
 
-// remove node from tree
-var queue = [];
-function removeFromTree(value, root){
- var parent = null;
-  queue= new Array();
- queue.push(root);
- removeTree(value,root,parent);
-}
+        insertNode = function (node, key, value, parent) {
+            if (node.key === null) {
+                node.leftChild = new Node();
+                node.key = key;
+                node.value = value;
+                node.rightChild = new Node();
+                node.parent = parent;
+                return true;
+            }
+            
+            var nodeKey = parseInt(node.key, 10);
 
-function removeTree(value,root,parent){
- if(root != null){
-  var c_node = queue.shift();
-  if(value < c_node.data.id){
-   parent = c_node;
-   queue.push(c_node.left);
-   queue.push(c_node.right);
-   removeTree(value, c_node.left,parent);
-  }
-  else if( value > c_node.data.id){
-   parent = c_node;
-   queue.push(c_node.left);
-   queue.push(c_node.right);
-   removeTree(value,c_node.right,parent);
-  }
-  else if(c_node.data.id == value)
-  {
-   if(c_node.left == null && c_node.right == null){
-    c_node = null;
-   }
-   else if(c_node.left == null && c_node.right != null){
-    parent.right = c_node;
-    c_node = null;
-   }
-   else if(c_node.left != null && c_node.right == null){
-    parent.right = c_node;
-    c_node = null;
-   }
-   else if(c_node.left != null && c_node.right != null){
-    // finding minimum in right subtree
-    var current_node = c_node.right;
+            if (key < nodeKey) {
+                insertNode(node.leftChild, key, value, node);
+            } else if (key > nodeKey) {
+                insertNode(node.rightChild, key, value, node);
+            } else { // key is equal to node key, update the value
+                node.value = value;
+                return true;
+            }
+        },
     
-    var min_node = current_node;
-    while(current_node.left != null){
-     
-     min_node = current_node.left;
-    }
-   if(parent.left.data.id == c_node.data.id){
-    parent.left = min_node;
-   }
-   else if(parent.right.data.id == c_node.data.id){
-    parent.right = min_node;
-   }
-    if(min_node.right != null){
-     var temp_node = min_node.right;
-     min_node = temp_node;
-    }
-    else
-    {
-     min_node = null;
-    }
-   }
-  }
- }
-}
+        traverseNode = function (node, callback) {
+            if (node.key !== null) {
+                traverseNode(node.leftChild, callback);
+                callback(node.key, node.value);
+                traverseNode(node.rightChild, callback);
+            }
+            
+            return true;
+        },
 
+        minNode = function (node) {
+            while (node.leftChild.key !== null) {
+                node = node.leftChild;
+            }
+
+            return node.key;
+        },
+        maxNode = function (node) {
+            while (node.rightChild.key !== null) {
+                node = node.rightChild;
+            }
+
+            return node.key;
+        },
+        
+        successorNode = function (node) {
+            var parent;
+        
+            if (node.rightChild.key !== null) {
+                return minNode(node.rightChild);
+            }
+            
+            parent = node.parent;
+            while (parent.key !== null && node == parent.rightChild) {
+                node = parent;
+                parent = parent.parent;
+            }
+            
+            return parent.key;
+        },
+
+
+        predecessorNode = function (node) {
+            var parent;
+        
+            if (node.leftChild.key !== null) {
+                return maxNode(node.leftChild);
+            }
+            
+            parent = node.parent;
+            while (parent.key !== null && node == parent.leftChild) {
+                node = parent;
+                parent = parent.parent;
+            }
+            
+            return parent.key;
+        },
+        
+        removeNode = function(key, node, parent){
+         // search for the node
+         var currentNode = searchNode(node,key,false);
+         var tempNode,currentParent ;
+         // no children
+         if(currentNode.leftChild.key === null && currentNode.rightChild.key === null){
+          currentNode = null;
+         }
+         // one child
+         else if(currentNode.rightChild.key !== null && currentNode.leftChild.key === null){
+          tempNode = new currentNode.rightChild;
+          currentParent = currentNode.parent;
+          if(currentParent.leftChild.key === currentNode.key){
+           currentParent.leftChild = tempNode;
+          }
+          else{
+           currentParent.rightChild = tempNode;
+          }
+          currentNode = null;
+         }
+         else if(currentNode.rightChild.key === null && currentNode.leftChild.key !== null){
+          tempNode = new currentNode.leftChild;
+          currentParent = currentNode.parent;
+          if(currentParent.leftChild.key === currentNode.key){
+           currentParent.leftChild = tempNode;
+          }
+          else{
+           currentParent.rightChild = tempNode;
+          }
+          currentNode = null;
+         }
+         // two children
+         else {
+          var smallestNode = currentNode;
+          var smallestParent = currentNode.parent;
+          // finding the smallest node in right sub tree
+          while(smallestNode.leftChild.key != null){
+           smallestParent = smallestNode.parent;
+           smallestNode = smallestNode.leftChild;
+          }
+          
+          currentNode.key = smallestNode.key;
+          currentNode.value = smallestNode.value;
+          
+          if(smallestNode.rightChild.key != null){
+           smallestParent.leftChild = smallestNode.rightChild;
+          }
+          smallestNode = null;
+         }
+         
+        };
+        
+    return {
+
+        search: function (key) {
+            var keyInt = parseInt(key, 10);
+
+            if (isNaN(keyInt)) {
+                return undefined; // key must be a number
+            } else {
+                return searchNode(root, keyInt,true);
+            }
+        },
+
+        insert: function (key, value) {
+            var keyInt = parseInt(key, 10);
+            
+            if (isNaN(keyInt)) {
+                return undefined; // key must be a number
+            } else {
+                return insertNode(root, keyInt, value, null);
+            }
+        },
+        
+        traverse: function (callback) {
+            if (typeof callback === "undefined") {
+                callback = function (key, value) {
+                    print(key + ": " + value);
+                };
+            }
+
+            return traverseNode(root, callback);
+        },
+
+
+        min: function () {
+            return minNode(root);
+        },
+
+        max: function () {
+            return maxNode(root);
+        },
+
+	      	successor: function () {
+		     	return successorNode(root);
+		      },
+		      predecessor: function () {
+			     return predecessorNode(root);
+		      },
+		      remove: function (key) {
+		       var keyInt = parseInt(key, 10);
+
+            if (isNaN(keyInt)) {
+                return undefined; // key must be a number
+            } else {
+                return removeNode(keyInt,root,null);
+            }
+		       }
+	       };
+};
 
 var room_def = {
  id : Number,
@@ -577,6 +709,7 @@ var room_def = {
 };
 
 var node = {
+ parent: null,
  left : null,
  right : null,
  data : room_def
@@ -584,8 +717,8 @@ var node = {
 
 //-------------------------------------------------------------------
 
+var room_tree = new BST();
 
-var root = null;
   io.on('connection', function(socket){
   console.log(io.url);
   console.log('connection called from client' + socket);
@@ -605,52 +738,46 @@ var root = null;
      messages : []
    };
    room.sockets.push(socket_id);
+   
+   room_tree.insert(c_id,room);
+   
    rooms.push(room);
-   console.log(rooms.length);
-   console.log(rooms[0].sockets.length);
-   console.log(c_id);
+   //console.log(rooms.length);
+   //console.log(rooms[0].sockets.length);
+   console.log(room_tree);
    io.to(socket_id).emit('new question',c_id);
   });
   
   socket.on('responded',function(data){
    var r_id = data.id;
-   for(var iter = 0; iter < rooms.length; iter++){
-    if(rooms[iter].id == r_id){
-     rooms[iter].sockets.push(socket.id);
-     for (var itr = 0; itr < rooms[iter].messages.length; itr++){
-      io.to(socket.id).emit('new message',rooms[iter].messages[itr]);
+   
+    var c_room = room_tree.search(r_id);
+    
+     c_room.sockets.push(socket.id);
+     for (var itr = 0; itr < c_room.messages.length; itr++){
+      io.to(socket.id).emit('new message',c_room.messages[itr]);
      }
-    }
-   }
+    
+   
   });
   
   socket.on('answer',function(message){
    var m_id = message.id;
-   
-   //================================================================
-   // Figure out a way to not iterate but also to not destroy memory
-   //===============================================================
+
    console.log('answer called');
    console.log(m_id);
-   for(var iter = 0; iter < rooms.length; iter++){
-    var myroom = rooms[iter];
-    var s_id = myroom.id;
-    
-    console.log(m_id +' == '+ s_id);
-    if(m_id == s_id){
+   
+     var c_room = room_tree.search(m_id);
      console.log('matched');
-     rooms[iter].messages.push(message);
-     var thisroom = myroom;
-     var mysockets = thisroom.sockets;
+     c_room.messages.push(message);
+     var mysockets = c_room.sockets;
      console.log(mysockets);
      for(var idx = 0; idx < mysockets.length; idx++){
       var thissocket = mysockets[idx];
-      
       console.log(thissocket);
       io.to(thissocket).emit('new message', message);
      }
-    }
-   }
+    
   });
   
   socket.on('disconnect',function(){
@@ -659,15 +786,12 @@ var root = null;
    var d_id = socket.id;
    var sr_id = socket.question;
    console.log(d_id+" disconnected " + socket.question);
-   for(var idx = 0; idx < rooms.length; idx++){
-    if(rooms[idx].id == sr_id){
-     for(var iter = 0 ; iter < rooms[idx].sockets.length; iter++){
-      if(rooms[idx].sockets[iter] == d_id){
-       rooms[idx].sockets[iter].splice(iter,1);
-       if(rooms[idx].sockets.length == 0){
-        rooms.splice(idx,1);
-       }
-      }
+   var n_room = room_tree.search(sr_id);
+   for(var idx = 0; idx < n_room.sockets.length; idx++){
+    if(n_room.sockets[idx] == d_id){
+     n_room.sockets.splice(idx,1);
+     if(n_room.sockets.length == 0){
+      room_tree.remove(sr_id);
      }
     }
    }
