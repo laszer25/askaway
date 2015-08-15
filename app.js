@@ -257,7 +257,7 @@ function getQLocs(req,res){
        msg.addData('mesg', mesg);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender('API KEY');
+       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
        
        console.log(msg);
        sender.send(msg,keys,function(err,res){
@@ -486,9 +486,9 @@ var BST = function () {
             var nodeKey = parseInt(node.key, 10);
 
             if (key < nodeKey) {
-                return searchNode(node.leftChild, key);
+                return searchNode(node.leftChild, key,flag);
             } else if (key > nodeKey) {
-                return searchNode(node.rightChild, key);
+                return searchNode(node.rightChild, key,flag);
             } else { // key is equal to node key
                 if(flag)
                 return node.value;
@@ -755,7 +755,7 @@ var room_tree = new BST();
    console.log(m_id);
    
      var c_room = room_tree.search(m_id);
-     console.log('matched');
+     console.log(c_room);
      c_room.messages.push(message);
      var mysockets = c_room.sockets;
      console.log(mysockets);
@@ -774,15 +774,18 @@ var room_tree = new BST();
    var sr_id = socket.question;
    console.log(d_id+" disconnected " + socket.question);
    var n_room = room_tree.search(sr_id);
-   for(var idx = 0; idx < n_room.sockets.length; idx++){
-    if(n_room.sockets[idx] == d_id){
-     n_room.sockets.splice(idx,1);
-     if(n_room.sockets.length == 0){
-      room_tree.remove(sr_id);
+   if(n_room != null){
+    if(n_room.sockets != null){
+    for(var idx = 0; idx < n_room.sockets.length; idx++){
+     if(n_room.sockets[idx] == d_id){
+      n_room.sockets.splice(idx,1);
+      if(n_room.sockets.length == 0){
+       room_tree.remove(sr_id);
+      }
      }
     }
    }
-   
+   }
   });
   
   io.sockets.emit('connection-emit');
