@@ -210,6 +210,7 @@ function getQLocs(req,res){
  var qy = url_p.y;
  var maxd = Number(url_p.d);
  var mesg = url_p.m;
+ var room_id = (mesg + usr).hashCode();
  var usr = url_p.usr;
  var token_id = url_p.token_id;
  
@@ -255,9 +256,10 @@ function getQLocs(req,res){
        
        msg.addData('user', usr);
        msg.addData('mesg', mesg);
+       msg.addData('room_id',room_id);
        msg.addData('token_id',token_id);
        
-       var sender = new gcm.Sender('AIzaSyCeJYJkcZXgdyb0vUZXO3_uS8OG8AoEjAc');
+       var sender = new gcm.Sender(secrets.apiKey);
        
        console.log(msg);
        sender.send(msg,keys,function(err,res){
@@ -278,8 +280,8 @@ function getQLocs(req,res){
     
  });
  
- var resID = encodeURIComponent(mesg);
- res.redirect('/chatrooms?id=' + resID);
+ var resID = encodeURIComponent(room_id);
+ res.redirect('/chatrooms?question=' + mesg+'&room='+resID);
  // res.end();
   
  }
@@ -715,29 +717,32 @@ var room_tree = new BST();
   });
   socket.on('question',function(data){
    // create a question id
-   var c_id = data.question;
+   var c_question = data.question;
+   var c_id = data.room;
    var socket_id = socket.id;
    socket.question = c_id;
    console.log(socket_id);
    var room = {
      id:c_id,
+     question : c_question,
      sockets: [],
      messages : []
    };
-   room.sockets.push(socket_id);
-   
+   if(data.username === 'anonymos'){
+    room.sockets.push(socket_id);
+   }
    room_tree.insert(c_id,room);
    
    rooms.push(room);
    //console.log(rooms.length);
    //console.log(rooms[0].sockets.length);
    console.log(room_tree);
-   io.to(socket_id).emit('new question',c_id);
+   io.to(socket_id).emit('new question',data);
   });
   
   socket.on('responded',function(data){
-   var r_id = data.id;
-   
+   var r_id = data.room;
+   console.log(data);
     var c_room = room_tree.search(r_id);
     
      c_room.sockets.push(socket.id);
@@ -749,10 +754,11 @@ var room_tree = new BST();
   });
   
   socket.on('answer',function(message){
-   var m_id = message.id;
+   var m_id = message.room;
 
    console.log('answer called');
    console.log(m_id);
+   console.log(message);
    
      var c_room = room_tree.search(m_id);
      console.log(c_room);
@@ -779,7 +785,9 @@ var room_tree = new BST();
     for(var idx = 0; idx < n_room.sockets.length; idx++){
      if(n_room.sockets[idx] == d_id){
       n_room.sockets.splice(idx,1);
+      console.log('removed socket');
       if(n_room.sockets.length == 0){
+       console.log('removed room');
        room_tree.remove(sr_id);
       }
      }
