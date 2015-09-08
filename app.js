@@ -212,6 +212,7 @@ function getQLocs(req,res){
  var mesg = url_p.m;
  var room_id = (mesg + usr).hashCode();
  var usr = url_p.usr;
+ var device = url_p.device;
  var token_id = url_p.token_id;
  
  console.log(mesg);
@@ -261,7 +262,7 @@ function getQLocs(req,res){
        
        var sender = new gcm.Sender(secrets.apiKey);
        
-       console.log(msg);
+       console.log(room_id);
        sender.send(msg,keys,function(err,res){
         if(err)
          console.log(err);
@@ -281,9 +282,13 @@ function getQLocs(req,res){
  });
  
  var resID = encodeURIComponent(room_id);
+ if(device === "android"){
+  res.end(resID);
+ }
+ else{
  res.redirect('/chatrooms?question=' + mesg+'&room='+resID);
  // res.end();
-  
+ }
  }
  
  
@@ -369,7 +374,7 @@ function postAllUsers(req,res){
 
 //-----------------------------------------------------------------------------
 function postQUsers(req,res){
-
+ 
 console.log('postQUsers');
 
  
