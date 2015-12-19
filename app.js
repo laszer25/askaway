@@ -780,7 +780,6 @@ var room_tree = new BST();
   
   socket.on('disconnect',function(){
    // Figure out how to delete a room and it's messages from memory once all the clients are disconnected
-   
    var d_id = socket.id;
    var sr_id = socket.question;
    console.log(d_id+" disconnected " + socket.question);
@@ -803,8 +802,4 @@ var room_tree = new BST();
   
   io.sockets.emit('connection-emit');
   console.log('connection-emit');
-  
-  
-  
-  
 });

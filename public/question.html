@@ -139,7 +139,7 @@ function locationSet() {
              });
              
              
-            //document.getElementById("message").focus();
+            document.getElementById("message").focus();
 
         });
      });
@@ -172,7 +172,7 @@ function submitQuestion(){
     var message = document.getElementById("message").value;
     
     
-    post('/locs/q', {x:_lat,y:_lng,d:maxd,token_id:"asdffsdf",usr:'tony',m:message},"get");
+    post('/locs/q', {x:_lat,y:_lng,d:maxd,token_id:"asdffsdf",usr:'tony',m:message,device:"browser"},"get");
     }
 }
 google.maps.event.addDomListener(window, 'load', locationSet);
@@ -225,9 +225,9 @@ function startCheck() {
 </script>
 </head>
 
-<body>
+<body onload="startCheck()">
 <div id="googleMap" class="map-frame" ></div>
-<input type="text" name="message" class="question-box" id="message" onchange="checkTyping()" onfocus="startCheck()"/>
+<input type="text" name="message" class="question-box" id="message" onchange="checkTyping()"/>
 <input type="button" name="submit" id="submit" value="Pick A Point" onclick="submitQuestion()" class="submit-box"/>
 </body>
 

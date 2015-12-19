@@ -25,14 +25,17 @@
   });
   
   var question = {
-    question : getParameterByName("id"),
+    question : getParameterByName("question"),
+    room : getParameterByName("room"),
     username : 'anonymos'
   }
   socket.emit('question',question);
-  var id;
+  var c_room;
   socket.on('new question',function(data){
-    id = data;
-    console.log(id);
+    c_room = data.room;
+    c_question = data.question;
+    c_user = data.username;
+    console.log(c_room);
   });  
   
   function thisisfun(){
@@ -42,7 +45,7 @@
       message: message,
       username : "anonymos",
       self : true,
-      id : id
+      room : c_room
     }
     socket.emit('answer', chatmessage);
     document.getElementById("m").value = "";
