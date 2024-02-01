@@ -219,13 +219,18 @@ function getQLocs(req,res){
  console.log(mesg);
  
 
- if(qx == undefined || qy == undefined || maxd == undefined || mesg == undefined || usr == undefined || token_id == undefined){
-  res.status(500).end('woops');
-  
+ var missingParams = [];
+ if(qx == undefined) missingParams.push('x');
+ if(qy == undefined) missingParams.push('y');
+ if(maxd == undefined) missingParams.push('d');
+ if(mesg == undefined) missingParams.push('m');
+ if(usr == undefined) missingParams.push('usr');
+ if(token_id == undefined) missingParams.push('token_id');
+ if(missingParams.length > 0){
+  console.error(`[${new Date().toISOString()}] getQLocs: Missing query parameters: ${missingParams.join(', ')}`);
+  res.status(500).end();
  }
  else{
-  
-  
  Loca.find({geometry: {$near : {$geometry: {type : "Point", coordinates: [qx,qy]},$minDistance:0,$maxDistance:maxd}}},function(err, locsn) {
     
     if(err){
