@@ -724,7 +724,7 @@ var room_tree = new BST();
   console.log('connection called from client' + socket);
   socket.on('chat message', function(msg){
     io.sockets.emit('update chat',msg);
-    console.log('message: ' + msg);
+    console.log(`[${new Date().toISOString()}] Socket ${socket.id} sent message: ${msg}`);
   });
   socket.on('question',function(data){
    // create a question id
@@ -732,7 +732,7 @@ var room_tree = new BST();
    var c_id = data.room;
    var socket_id = socket.id;
    socket.question = c_id;
-   console.log(socket_id);
+   console.log(`[${new Date().toISOString()}] Socket ${socket_id} created question with ID: ${c_id}`);
    var room = {
      id:c_id,
      question : c_question,
@@ -753,7 +753,7 @@ var room_tree = new BST();
   
   socket.on('responded',function(data){
    var r_id = data.room;
-   console.log(data);
+   console.log(`[${new Date().toISOString()}] Socket ${socket.id} responded to room ID: ${r_id}`);
     var c_room = room_tree.search(r_id);
     
      c_room.sockets.push(socket.id);
@@ -767,9 +767,7 @@ var room_tree = new BST();
   socket.on('answer',function(message){
    var m_id = message.room;
 
-   console.log('answer called');
-   console.log(m_id);
-   console.log(message);
+   console.log(`[${new Date().toISOString()}] Socket ${socket.id} sent answer to room ID: ${m_id}: ${message}`);
    
      var c_room = room_tree.search(m_id);
      console.log(c_room);
@@ -788,7 +786,7 @@ var room_tree = new BST();
    // Figure out how to delete a room and it's messages from memory once all the clients are disconnected
    var d_id = socket.id;
    var sr_id = socket.question;
-   console.log(d_id+" disconnected " + socket.question);
+   console.log(`[${new Date().toISOString()}] Socket ${d_id} disconnected from room ID: ${sr_id}`);
    var n_room = room_tree.search(sr_id);
    if(n_room != null){
     if(n_room.sockets != null){
