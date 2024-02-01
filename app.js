@@ -43,7 +43,7 @@ db.on('error',function(){
  console.log('connection error');
 });
 db.once('open',function(callback){
- console.log('connected');
+ console.log(`[${new Date().toISOString()}] MongoDB connected at mongodb://127.0.0.1:27017`);
 });
 
 
