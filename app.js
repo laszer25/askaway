@@ -43,7 +43,7 @@ db.on('error',function(){
  console.log('connection error');
 });
 db.once('open',function(callback){
- console.log('connected');
+ console.log(`[${new Date().toISOString()}] MongoDB connected at mongodb://127.0.0.1:27017`);
 });
 
 
@@ -142,6 +142,7 @@ function getChatrooms(req,res) {
  console.log('getChatrooms');
  console.log(process.env.PORT);
  console.log(process.env.IP);
+ console.log(`[${new Date().toISOString()}] Chatroom page served to IP: ${req.ip}`);
  res.sendfile(__dirname + '/public/chatroom.html');
 }
 
@@ -188,7 +189,7 @@ function hiPari(req, res){
 
 //-----------------------------------------------------------------------------
 function getAllLocs(req,res){
- console.log('getAllLocs');
+ console.log(`[${new Date().toISOString()}] getAllLocs: Retrieved ${locsa.length} locations`);
 Loca.find(function(err,locsa){
   //console.log(locsa);
   if(err)
@@ -218,13 +219,18 @@ function getQLocs(req,res){
  console.log(mesg);
  
 
- if(qx == undefined || qy == undefined || maxd == undefined || mesg == undefined || usr == undefined || token_id == undefined){
-  res.status(500).end('woops');
-  
+ var missingParams = [];
+ if(qx == undefined) missingParams.push('x');
+ if(qy == undefined) missingParams.push('y');
+ if(maxd == undefined) missingParams.push('d');
+ if(mesg == undefined) missingParams.push('m');
+ if(usr == undefined) missingParams.push('usr');
+ if(token_id == undefined) missingParams.push('token_id');
+ if(missingParams.length > 0){
+  console.error(`[${new Date().toISOString()}] getQLocs: Missing query parameters: ${missingParams.join(', ')}`);
+  res.status(500).end();
  }
  else{
-  
-  
  Loca.find({geometry: {$near : {$geometry: {type : "Point", coordinates: [qx,qy]},$minDistance:0,$maxDistance:maxd}}},function(err, locsn) {
     
     if(err){
@@ -362,7 +368,7 @@ function postAllUsers(req,res){
  if(err)
   console.log(err);
  else
-  console.log('User created with id : '+user.id);
+  console.log(`[${new Date().toISOString()}] postAllUsers: New user created with ID: ${user.id}, Username: ${_user}`);
 });
  var userId = String(user.id);
  res.write(userId);
@@ -718,7 +724,7 @@ var room_tree = new BST();
   console.log('connection called from client' + socket);
   socket.on('chat message', function(msg){
     io.sockets.emit('update chat',msg);
-    console.log('message: ' + msg);
+    console.log(`[${new Date().toISOString()}] Socket ${socket.id} sent message: ${msg}`);
   });
   socket.on('question',function(data){
    // create a question id
@@ -726,7 +732,7 @@ var room_tree = new BST();
    var c_id = data.room;
    var socket_id = socket.id;
    socket.question = c_id;
-   console.log(socket_id);
+   console.log(`[${new Date().toISOString()}] Socket ${socket_id} created question with ID: ${c_id}`);
    var room = {
      id:c_id,
      question : c_question,
@@ -747,7 +753,7 @@ var room_tree = new BST();
   
   socket.on('responded',function(data){
    var r_id = data.room;
-   console.log(data);
+   console.log(`[${new Date().toISOString()}] Socket ${socket.id} responded to room ID: ${r_id}`);
     var c_room = room_tree.search(r_id);
     
      c_room.sockets.push(socket.id);
@@ -761,9 +767,7 @@ var room_tree = new BST();
   socket.on('answer',function(message){
    var m_id = message.room;
 
-   console.log('answer called');
-   console.log(m_id);
-   console.log(message);
+   console.log(`[${new Date().toISOString()}] Socket ${socket.id} sent answer to room ID: ${m_id}: ${message}`);
    
      var c_room = room_tree.search(m_id);
      console.log(c_room);
@@ -782,7 +786,7 @@ var room_tree = new BST();
    // Figure out how to delete a room and it's messages from memory once all the clients are disconnected
    var d_id = socket.id;
    var sr_id = socket.question;
-   console.log(d_id+" disconnected " + socket.question);
+   console.log(`[${new Date().toISOString()}] Socket ${d_id} disconnected from room ID: ${sr_id}`);
    var n_room = room_tree.search(sr_id);
    if(n_room != null){
     if(n_room.sockets != null){
