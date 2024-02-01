@@ -368,7 +368,7 @@ function postAllUsers(req,res){
  if(err)
   console.log(err);
  else
-  console.log('User created with id : '+user.id);
+  console.log(`[${new Date().toISOString()}] postAllUsers: New user created with ID: ${user.id}, Username: ${_user}`);
 });
  var userId = String(user.id);
  res.write(userId);
