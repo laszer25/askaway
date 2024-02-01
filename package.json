@@ -6,13 +6,13 @@
   "repository": "",
   "author": "Mostafa Eweda <mo.eweda@gmail.com>",
   "dependencies": {
-    "async": "~0.2.8",
-    "body-parser": "^1.13.2",
-    "cors": "^2.7.1",
-    "express": "~3.2.4",
-    "mongoose": "^4.1.0",
-    "node-gcm": "^0.11.0",
-    "socket.io": "^1.0.2",
-    "url": "^0.10.3"
+    "async": "*",
+    "body-parser": "*",
+    "cors": "*",
+    "express": "*",
+    "mongoose": "*",
+    "node-gcm": "*",
+    "socket.io": "*",
+    "url": "*"
   }
 }
