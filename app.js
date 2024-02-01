@@ -142,6 +142,7 @@ function getChatrooms(req,res) {
  console.log('getChatrooms');
  console.log(process.env.PORT);
  console.log(process.env.IP);
+ console.log(`[${new Date().toISOString()}] Chatroom page served to IP: ${req.ip}`);
  res.sendfile(__dirname + '/public/chatroom.html');
 }
 
