@@ -189,7 +189,7 @@ function hiPari(req, res){
 
 //-----------------------------------------------------------------------------
 function getAllLocs(req,res){
- console.log('getAllLocs');
+ console.log(`[${new Date().toISOString()}] getAllLocs: Retrieved ${locsa.length} locations`);
 Loca.find(function(err,locsa){
   //console.log(locsa);
   if(err)
