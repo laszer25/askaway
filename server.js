@@ -31,8 +31,11 @@ io.on('connection', function (socket) {
 
     sockets.push(socket);
 
+    console.log("New client connected");
+
     socket.on('disconnect', function () {
       sockets.splice(sockets.indexOf(socket), 1);
+      console.log("Client disconnected");
       updateRoster();
     });
 
@@ -41,6 +44,8 @@ io.on('connection', function (socket) {
 
       if (!text)
         return;
+
+      console.log("Message received: " + text);
 
       socket.get('name', function (err, name) {
         var data = {
@@ -55,6 +60,7 @@ io.on('connection', function (socket) {
 
     socket.on('identify', function (name) {
       socket.set('name', String(name || 'Anonymous'), function (err) {
+        console.log("Client identified as: " + name);
         updateRoster();
       });
     });
@@ -80,5 +86,6 @@ function broadcast(event, data) {
 
 server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
   var addr = server.address();
+  console.log("Server started on " + addr.address + ":" + addr.port);
   console.log("Chat server listening at", addr.address + ":" + addr.port);
 });
