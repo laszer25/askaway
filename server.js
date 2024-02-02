@@ -35,6 +35,7 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', function () {
       sockets.splice(sockets.indexOf(socket), 1);
+      console.log("Client disconnected");
       updateRoster();
     });
 
