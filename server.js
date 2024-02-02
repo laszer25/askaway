@@ -45,6 +45,8 @@ io.on('connection', function (socket) {
       if (!text)
         return;
 
+      console.log("Message received: " + text);
+
       socket.get('name', function (err, name) {
         var data = {
           name: name,
