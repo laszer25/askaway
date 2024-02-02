@@ -31,6 +31,8 @@ io.on('connection', function (socket) {
 
     sockets.push(socket);
 
+    console.log("New client connected");
+
     socket.on('disconnect', function () {
       sockets.splice(sockets.indexOf(socket), 1);
       updateRoster();
